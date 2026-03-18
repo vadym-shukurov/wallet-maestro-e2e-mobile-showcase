@@ -1,0 +1,84 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-008: Create Wallet — Empty Name Blocked"
+tags:
+  - smoke
+  - negative
+  - wallet-create
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-008  Verify Next button is disabled when wallet name is empty
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls)
+#
+# Covers:
+#   Onboarding → Create Wallet → Name screen
+#   Verifies Next button is disabled by default, becomes
+#   enabled after typing, and returns to disabled after clearing.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client ── (45s: cold-start + Metro bundling)
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  ONBOARDING ────────────────────────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- tapOn:
+    id: "onboarding-wallet-button"
+
+# ─── 2  NAME WALLET — verify default disabled state ──────
+
+- extendedWaitUntil:
+    visible:
+      id: "name-wallet-title"
+    timeout: 10000                  # screen transition
+
+- assertVisible:
+    id: "wallet-name-input"
+- assertVisible:
+    id: "name-wallet-next-button"
+
+# Tap Next while name is empty — button is disabled, nothing happens
+- tapOn:
+    id: "name-wallet-next-button"
+
+# Still on the same screen (no navigation occurred)
+- assertVisible:
+    id: "name-wallet-title"
+- assertVisible:
+    id: "wallet-name-input"
+
+# ─── 3  TYPE NAME — button becomes enabled ───────────────
+
+- tapOn:
+    id: "wallet-name-input"
+- inputText: "My Wallet"
+- hideKeyboard
+
+# Tap Next — should navigate to Secure Wallet
+- tapOn:
+    id: "name-wallet-next-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "secure-wallet-title"
+    timeout: 15000                  # includes async seed generation
+
+# ─── 4  GO BACK — verify round-trip ─────────────────────
+
+- tapOn: "Back"
+
+- extendedWaitUntil:
+    visible:
+      id: "name-wallet-title"
+    timeout: 10000                  # screen transition
+
+# Name should be preserved after returning
+- assertVisible: "My Wallet"

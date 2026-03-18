@@ -1,0 +1,85 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-009: Import Wallet — Incomplete Phrase Rejected"
+tags:
+  - smoke
+  - negative
+  - wallet-import
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-009  Verify submit is blocked when fewer than 12 words are entered
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls)
+#
+# Covers:
+#   Onboarding → Import → Type only 3 valid words →
+#   Submit → Alert "Incomplete" appears
+#
+# Validates the form-completeness check: all 12 fields
+# must be filled before submission is allowed.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client ── (45s: cold-start + Metro bundling)
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  ONBOARDING ────────────────────────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- tapOn:
+    id: "onboarding-download-button"
+
+# ─── 2  IMPORT SCREEN ────────────────────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-title"
+    timeout: 10000                  # screen transition
+
+# ─── 3  TYPE ONLY 3 OF 12 WORDS ──────────────────────────
+
+- tapOn:
+    id: "seed-word-input-0"
+- inputText: "apple"
+
+- tapOn:
+    id: "seed-word-input-1"
+- inputText: "banana"
+
+- tapOn:
+    id: "seed-word-input-2"
+- inputText: "cherry"
+- hideKeyboard
+
+# ─── 4  SUBMIT — tap Import Wallet with incomplete form ──
+
+- tapOn:
+    id: "import-wallet-submit-button"
+
+# ─── 5  VERIFY — incomplete alert appears ────────────────
+
+- extendedWaitUntil:
+    visible: "Incomplete"
+    timeout: 5000                   # alert dialog
+
+- assertVisible: "Please fill in all 12 words of your secret phrase"
+
+# ─── 6  DISMISS — tap OK on the alert ───────────────────
+
+- tapOn: "OK"
+
+# ─── 7  VERIFY — still on import screen (no navigation) ─
+
+- assertVisible:
+    id: "import-wallet-title"
+- assertVisible:
+    id: "import-paste-button"
+
+# Previously entered words should still be present
+- assertVisible: "apple"

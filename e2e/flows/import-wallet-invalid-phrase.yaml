@@ -1,0 +1,118 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-007: Import Wallet — Invalid Seed Phrase Rejected"
+tags:
+  - smoke
+  - negative
+  - wallet-import
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-007  Import Wallet — invalid seed phrase is rejected
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls)
+#
+# Covers:
+#   Onboarding → Import → Type 12 short/invalid words →
+#   Submit → Alert "Invalid Seed Phrase" appears
+#
+# Validates the client-side validation: words must be
+# at least 3 chars long and lowercase-letter-only.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  ONBOARDING — verify landing screen ──────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+# ─── 2  NAVIGATE — tap Import Wallet ────────────────────
+
+- tapOn:
+    id: "onboarding-download-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-title"
+    timeout: 10000                  # screen transition
+
+# ─── 3  TYPE INVALID WORDS — "ab" is too short (< 3 chars) ─
+
+- tapOn:
+    id: "seed-word-input-0"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-1"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-2"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-3"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-4"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-5"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-6"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-7"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-8"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-9"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-10"
+- inputText: "ab"
+
+- tapOn:
+    id: "seed-word-input-11"
+- inputText: "ab"
+- hideKeyboard
+
+# ─── 4  SUBMIT — tap Import Wallet ──────────────────────
+
+- tapOn:
+    id: "import-wallet-submit-button"
+
+# ─── 5  VERIFY — validation alert appears ───────────────
+
+- extendedWaitUntil:
+    visible: "Invalid Seed Phrase"
+    timeout: 5000                   # alert dialog
+
+- assertVisible: "Please check your seed phrase. Make sure all words are spelled correctly and contain only lowercase letters."
+
+# ─── 6  DISMISS — tap OK on the alert ───────────────────
+
+- tapOn: "OK"
+
+# ─── 7  VERIFY — still on import screen (no navigation) ─
+
+- assertVisible:
+    id: "import-wallet-title"
+- assertVisible:
+    id: "import-paste-button"

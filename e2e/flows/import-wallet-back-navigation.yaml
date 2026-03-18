@@ -1,0 +1,90 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-006: Import Wallet — Back Navigation Preserves State"
+tags:
+  - smoke
+  - navigation
+  - wallet-import
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-006  Back navigation from Name screen preserves seed words
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls)
+#   • E2E_SEED_PHRASE loaded into simulator clipboard
+#   • LAST_SEED_WORD env var passed to Maestro
+#
+# Covers:
+#   Onboarding → Import → Paste → Submit → Name screen
+#   → Back → verify seed words still filled → re-submit
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  Onboarding → Import Wallet ──────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- tapOn:
+    id: "onboarding-download-button"
+
+# ─── 2  Paste seed phrase ───────────────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-title"
+    timeout: 10000                  # screen transition
+
+- tapOn:
+    id: "import-paste-button"
+
+- extendedWaitUntil:
+    visible: "Allow Paste"
+    timeout: 5000                   # iOS clipboard permission dialog
+- tapOn: "Allow Paste"
+
+- extendedWaitUntil:
+    visible: ${LAST_SEED_WORD}
+    timeout: 5000                   # paste fills 12 fields
+
+# ─── 3  Submit → Name screen ───────────────────────────
+
+- tapOn:
+    id: "import-wallet-submit-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "import-name-wallet-title"
+    timeout: 15000                  # seed validation + navigation
+
+# ─── 4  Tap Back → return to Import screen ──────────────
+
+- tapOn: "Back"
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-title"
+    timeout: 10000                  # back navigation
+
+# ─── 5  Verify seed words are still filled ──────────────
+
+- assertVisible: ${LAST_SEED_WORD}
+
+# ─── 6  Re-submit to prove form is still valid ─────────
+
+- tapOn:
+    id: "import-wallet-submit-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "import-name-wallet-title"
+    timeout: 15000                  # seed validation + navigation
+
+- assertVisible:
+    id: "import-wallet-name-input"

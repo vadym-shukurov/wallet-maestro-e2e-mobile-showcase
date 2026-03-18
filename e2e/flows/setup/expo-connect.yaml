@@ -1,0 +1,36 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "Setup: Expo Dev Client Connection"
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Shared sub-flow: navigate through the Expo dev-client
+# launcher after a fresh install.
+#
+# Sequence: Metro URL → Continue → Go home → Select app
+#
+# Called via `runFlow` from every test flow.
+#
+# Note: "Continue", "Go home", "RECENTLY OPENED" are Expo dev-client
+# UI strings — we cannot add testIDs to third-party screens.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- extendedWaitUntil:
+    visible: "http://localhost:8081"
+    timeout: 15000                  # Expo launcher boot
+- tapOn: "http://localhost:8081"
+
+- extendedWaitUntil:
+    visible: "Continue"
+    timeout: 30000                  # first-time dev-client setup dialog
+- tapOn: "Continue"
+
+- extendedWaitUntil:
+    visible: "Go home"
+    timeout: 15000                  # dev tools panel load
+- tapOn: "Go home"
+
+- extendedWaitUntil:
+    visible: "RECENTLY OPENED"
+    timeout: 10000                  # return to Expo home
+- tapOn:
+    text: ${E2E_EXPO_APP_NAME}      # from app.json (run-e2e.sh)

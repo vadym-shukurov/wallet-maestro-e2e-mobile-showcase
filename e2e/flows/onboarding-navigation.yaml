@@ -1,0 +1,91 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-003: Onboarding — Navigation Smoke"
+tags:
+  - smoke
+  - navigation
+  - onboarding
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-003  Onboarding screen navigation round-trips
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls before each flow)
+#
+# Covers:
+#   Welcome → Import Wallet → Back → Welcome
+#   Welcome → Create Wallet → Back → Welcome
+#
+# Validates that both navigation paths work and the back
+# button correctly returns to the onboarding screen.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  ONBOARDING — verify all elements ────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- assertVisible:
+    id: "onboarding-subtitle"
+- assertVisible:
+    id: "onboarding-wallet-button"
+- assertVisible:
+    id: "onboarding-download-button"
+
+# ─── 2  ROUND-TRIP A: Import Wallet → Back ──────────────
+
+- tapOn:
+    id: "onboarding-download-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-title"
+    timeout: 10000                  # screen transition
+
+- assertVisible:
+    id: "import-paste-button"
+- assertVisible:
+    id: "import-wallet-submit-button"
+
+- tapOn: "Back"
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 10000                  # back navigation
+
+# ─── 3  ROUND-TRIP B: Create Wallet → Back ──────────────
+
+- tapOn:
+    id: "onboarding-wallet-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "name-wallet-title"
+    timeout: 10000                  # screen transition
+
+- assertVisible:
+    id: "wallet-name-input"
+- assertVisible:
+    id: "name-wallet-next-button"
+
+- tapOn: "Back"
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 10000                  # back navigation
+
+# ─── 4  FINAL — both CTAs still available ───────────────
+
+- assertVisible:
+    id: "onboarding-wallet-button"
+- assertVisible:
+    id: "onboarding-download-button"

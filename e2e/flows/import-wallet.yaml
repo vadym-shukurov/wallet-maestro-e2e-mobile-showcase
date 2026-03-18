@@ -1,0 +1,108 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-001: Import Wallet — Happy Path"
+tags:
+  - smoke
+  - critical-path
+  - wallet-import
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-001  Import Wallet via Secret Phrase
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls before each flow)
+#   • E2E_SEED_PHRASE loaded into simulator clipboard
+#   • LAST_SEED_WORD env var passed to Maestro
+#
+# Covers:
+#   Onboarding → Import phrase → Name wallet → Dashboard
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  ONBOARDING — verify landing screen ──────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- assertVisible:
+    id: "onboarding-wallet-button"
+- assertVisible:
+    id: "onboarding-download-button"
+
+# ─── 2  NAVIGATE — tap Import Wallet ────────────────────
+
+- tapOn:
+    id: "onboarding-download-button"
+
+# ─── 3  IMPORT SCREEN — verify elements loaded ──────────
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-title"
+    timeout: 10000                  # screen transition
+
+- assertVisible:
+    id: "import-paste-button"
+- assertVisible:
+    id: "import-wallet-submit-button"
+
+# ─── 4  PASTE — load seed phrase from clipboard ─────────
+
+- tapOn:
+    id: "import-paste-button"
+
+# Handle iOS clipboard-permission dialog
+- extendedWaitUntil:
+    visible: "Allow Paste"
+    timeout: 5000                   # iOS clipboard permission dialog
+- tapOn: "Allow Paste"
+
+# Verify paste succeeded — the last word of the phrase appears
+- extendedWaitUntil:
+    visible: ${LAST_SEED_WORD}
+    timeout: 5000                   # paste fills 12 fields
+
+# ─── 5  SUBMIT — tap Import Wallet button ───────────────
+
+- tapOn:
+    id: "import-wallet-submit-button"
+
+# ─── 6  NAME SCREEN — verify navigation ─────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "import-name-wallet-title"
+    timeout: 15000                  # seed validation + navigation
+
+- assertVisible:
+    id: "import-wallet-name-input"
+
+# ─── 7  ENTER NAME — type wallet name ───────────────────
+
+- tapOn:
+    id: "import-wallet-name-input"
+- inputText: "Imported Wallet"
+- hideKeyboard
+
+# ─── 8  FINALIZE — tap Import Wallet to confirm ─────────
+
+- tapOn:
+    id: "import-name-wallet-submit-button"
+
+# ─── 9  VERIFY — import completes and dashboard loads ─────
+
+- extendedWaitUntil:
+    visible:
+      id: "import-wallet-loading"
+    timeout: 5000                   # spinner appears briefly
+
+- extendedWaitUntil:
+    visible:
+      id: "wallet-title"
+    timeout: 15000                  # import completes → navigate to wallet

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - 5BD2800A-E6F0-4826-AECF-EB3774ED5700" tests="1" failures="0" time="67.0">
+    <testcase id="TC-007: Import Wallet — Invalid Seed Phrase Rejected" name="TC-007: Import Wallet — Invalid Seed Phrase Rejected" classname="TC-007: Import Wallet — Invalid Seed Phrase Rejected" time="67.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="smoke, negative, wallet-import"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

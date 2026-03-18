@@ -1,0 +1,97 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-004: Seed Phrase — Hide/Show Toggle"
+tags:
+  - smoke
+  - functional
+  - seed-phrase
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-004  Verify seed phrase visibility toggle
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls)
+#
+# Covers:
+#   Onboarding → Create Wallet → Name → Secure Wallet
+#   Verify initial state → tap Hide → verify label changes
+#   → tap Show → verify label changes back & words visible
+#
+# Note: The seed-word-value elements remain in the view
+# tree when masked (content changes to dots), so we verify
+# the toggle via button label transitions, not element
+# removal.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  Navigate to Secure Wallet screen ────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- tapOn:
+    id: "onboarding-wallet-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "name-wallet-title"
+    timeout: 10000                  # screen transition
+
+- tapOn:
+    id: "wallet-name-input"
+- inputText: "Toggle Test"
+- hideKeyboard
+
+- tapOn:
+    id: "name-wallet-next-button"
+
+# ─── 2  Wait for Secure Wallet + seed generation ─────────
+
+- extendedWaitUntil:
+    visible:
+      id: "secure-wallet-title"
+    timeout: 15000                  # screen transition
+
+- extendedWaitUntil:
+    visible:
+      id: "seed-word-value-0"
+    timeout: 15000                  # WDK SDK mnemonic generation
+
+# ─── 3  Verify initial state — phrase VISIBLE ────────────
+
+- assertVisible: "Hide Phrase"
+- assertVisible:
+    id: "seed-word-value-0"
+- assertVisible:
+    id: "seed-word-value-5"
+- assertVisible: "Copy Phrase"
+
+# ─── 4  Tap Hide Phrase → verify label toggles ───────────
+
+- tapOn:
+    id: "toggle-visibility-button"
+
+- extendedWaitUntil:
+    visible: "Show Phrase"
+    timeout: 5000                   # toggle animation
+
+- assertNotVisible: "Hide Phrase"
+
+# ─── 5  Tap Show Phrase → verify words are back ──────────
+
+- tapOn:
+    id: "toggle-visibility-button"
+
+- extendedWaitUntil:
+    visible: "Hide Phrase"
+    timeout: 5000                   # toggle animation
+
+- assertNotVisible: "Show Phrase"
+- assertVisible:
+    id: "seed-word-value-0"

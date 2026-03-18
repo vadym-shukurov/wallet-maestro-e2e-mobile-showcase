@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - 5BD2800A-E6F0-4826-AECF-EB3774ED5700" tests="1" failures="0" time="29.0">
+    <testcase id="TC-005: Create Wallet — Navigate to Confirm Phrase" name="TC-005: Create Wallet — Navigate to Confirm Phrase" classname="TC-005: Create Wallet — Navigate to Confirm Phrase" time="29.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="smoke, critical-path, wallet-create"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

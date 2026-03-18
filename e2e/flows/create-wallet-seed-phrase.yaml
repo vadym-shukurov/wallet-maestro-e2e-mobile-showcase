@@ -1,0 +1,95 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-002: Create Wallet — Seed Phrase Generation"
+tags:
+  - smoke
+  - critical-path
+  - wallet-create
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-002  Create Wallet up to Seed Phrase screen
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls before each flow)
+#
+# Covers:
+#   Onboarding → Name Wallet → Secure Wallet (seed phrase
+#   generated and displayed). Stops before the confirm-
+#   phrase screen (which requires interactive word matching).
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  ONBOARDING — verify welcome screen ──────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- assertVisible:
+    id: "onboarding-wallet-button"
+
+# ─── 2  NAVIGATE — tap Create Wallet ────────────────────
+
+- tapOn:
+    id: "onboarding-wallet-button"
+
+# ─── 3  NAME WALLET — verify screen loaded ──────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "name-wallet-title"
+    timeout: 10000                  # screen transition
+
+- assertVisible:
+    id: "wallet-name-input"
+- assertVisible:
+    id: "name-wallet-next-button"
+
+# ─── 4  NAME WALLET — enter name ────────────────────────
+
+- tapOn:
+    id: "wallet-name-input"
+- inputText: "Test Wallet"
+- hideKeyboard
+
+# ─── 5  NAME WALLET — tap Next ──────────────────────────
+
+- tapOn:
+    id: "name-wallet-next-button"
+
+# ─── 6  SECURE WALLET — wait for seed phrase generation ─
+
+- extendedWaitUntil:
+    visible:
+      id: "secure-wallet-title"
+    timeout: 15000                  # screen transition
+
+# Wait for the async seed generation to finish — first word appears
+- extendedWaitUntil:
+    visible:
+      id: "seed-word-value-0"
+    timeout: 15000                  # WDK SDK mnemonic generation
+
+# ─── 7  SECURE WALLET — verify seed phrase grid ─────────
+
+- assertVisible:
+    id: "seed-word-value-1"
+- assertVisible:
+    id: "seed-word-value-2"
+- assertVisible:
+    id: "seed-word-value-3"
+
+# ─── 8  SECURE WALLET — verify action buttons ───────────
+
+- assertVisible: "Copy Phrase"
+- assertVisible: "Hide Phrase"
+
+# ─── 9  SECURE WALLET — verify Next is enabled ──────────
+
+- assertVisible:
+    id: "secure-wallet-next-button"

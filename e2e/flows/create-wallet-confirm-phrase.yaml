@@ -1,0 +1,82 @@
+appId: com.anonymous.wdkstarterreactnative
+name: "TC-005: Create Wallet — Navigate to Confirm Phrase"
+tags:
+  - smoke
+  - critical-path
+  - wallet-create
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TC-005  Create Wallet — full navigation to Confirm Phrase
+# ─────────────────────────────────────────────────────────
+# Preconditions:
+#   • App freshly installed (runner script reinstalls)
+#
+# Covers:
+#   Onboarding → Name → Seed Phrase → Confirm Phrase screen
+#   Verifies all 4 word-verification prompts are displayed.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- launchApp
+
+# ── Expo dev client: connect to Metro after fresh install ─
+- runFlow: setup/expo-connect.yaml
+
+# ─── 1  Onboarding → Create Wallet ──────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-title"
+    timeout: 45000                  # cold-start + Metro JS bundle
+
+- tapOn:
+    id: "onboarding-wallet-button"
+
+# ─── 2  Name Wallet ─────────────────────────────────────
+
+- extendedWaitUntil:
+    visible:
+      id: "name-wallet-title"
+    timeout: 10000                  # screen transition
+
+- tapOn:
+    id: "wallet-name-input"
+- inputText: "Confirm Test"
+- hideKeyboard
+
+- tapOn:
+    id: "name-wallet-next-button"
+
+# ─── 3  Secure Wallet — wait for seed generation ────────
+
+- extendedWaitUntil:
+    visible:
+      id: "secure-wallet-title"
+    timeout: 15000                  # screen transition
+
+- extendedWaitUntil:
+    visible:
+      id: "seed-word-value-0"
+    timeout: 15000                  # WDK SDK mnemonic generation
+
+# ─── 4  Tap Next → navigate to Confirm Phrase ───────────
+
+- tapOn:
+    id: "secure-wallet-next-button"
+
+# ─── 5  Confirm Phrase — verify screen loaded ───────────
+
+- extendedWaitUntil:
+    visible:
+      id: "confirm-phrase-title"
+    timeout: 10000                  # screen transition
+
+# Verify all 4 word verification prompts (by testID — decoupled from label text)
+- assertVisible:
+    id: "confirm-phrase-word-3"
+- assertVisible:
+    id: "confirm-phrase-word-5"
+- assertVisible:
+    id: "confirm-phrase-word-7"
+- assertVisible:
+    id: "confirm-phrase-word-12"
